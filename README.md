@@ -1,57 +1,124 @@
-# ts-react-app
+# DataHub Browser
 
-A minimal Vite + React + TypeScript starter.
+`datahub-browser` is a lightweight React app for exploring DataHub entity neighborhoods from a URN.
 
-## Quick start
+It supports:
+- URN-based navigation through parent/dependency relationships
+- Breadcrumb navigation stack
+- Structure view for large neighborhoods (grouped by aspect)
+- Graph view for visual context
+- Clickable URNs inside entity JSON
 
-Install dependencies:
+## Prerequisites
+
+- Node.js 18+ (20 recommended)
+- npm
+- Access to a running DataHub GMS instance
+
+## Local Setup
+
+1. Install dependencies:
 
 ```bash
 npm install
 ```
 
-Run the dev server:
+2. Start dev server:
 
 ```bash
 npm run dev
 ```
 
-## DataHub GMS integration
+3. Open the app (typically `http://localhost:5173`).
 
-This app connects to DataHub GMS with OpenAPI endpoints:
+## Configuration
 
-- `/openapi/entities/v1/latest`
-- `/openapi/relationships/v1`
+The app builds the GMS base URL from host/port/path.
 
-By default, the app connects using:
-
-- `host`: current browser host
-- `port`: current browser port
-- `gms api path`: `/gms`
-
-Configure these via environment variables:
-
+Environment variables:
 - `VITE_DATAHUB_HOST`
 - `VITE_DATAHUB_PORT`
 - `VITE_DATAHUB_GMS_API_PATH`
 
-In local development, Vite proxies `/gms/*` to `http://localhost:8080/*` (configured in `vite.config.ts`).
-Run your local DataHub instance first, then run `npm run dev`.
+Defaults:
+- `host`: current browser host
+- `port`: current browser port
+- `gms api path`: `/gms`
 
-If your GMS is not behind `/gms` on the dev server, set the env vars before running:
+### Typical local DataHub setup
+
+`vite.config.ts` proxies `/gms/*` to `http://localhost:8080/*`.
+
+So with default settings, browser calls like `/gms/openapi/...` are forwarded to local GMS.
+
+### Example overrides
+
+Direct to local GMS without proxy path:
 
 ```bash
 VITE_DATAHUB_HOST=localhost VITE_DATAHUB_PORT=8080 VITE_DATAHUB_GMS_API_PATH='' npm run dev
 ```
 
-Build:
+## How To Use
+
+1. Enter a URN and click `Connect` (or press `Enter`).
+2. Use `Structure` view for scale:
+   - grouped sections (`Previous`, `Parents`, and aspect groups)
+   - filter box for urn/type/name/aspect
+   - click any item to navigate
+3. Use `Graph` view for visual context on smaller neighborhoods.
+4. Click breadcrumbs to jump back to prior nodes.
+5. Click URNs in the JSON panel to navigate to referenced entities.
+
+## API Behavior
+
+Entity fetch attempts:
+1. `/openapi/entities/v1/latest?urns=...&withSystemMetadata=false`
+2. `/openapi/entities/v1/latest?urns=...`
+3. `/entitiesV2/{urn}`
+
+Relationship fetch attempts:
+1. `/openapi/relationships/v1/?...`
+2. `/openapi/relationships/v1?...`
+3. `/relationships?...&types=...` (legacy fallback)
+
+## Auth Notes
+
+This app does not hardcode tokens.
+
+It relies on network/path access to GMS from the browser (or Vite proxy). If your GMS requires auth headers, add auth at your proxy/gateway layer or extend the app fetch logic.
+
+## Scripts
+
+- `npm run dev`: start local dev server
+- `npm run build`: production build
+- `npm run preview`: preview production build
+
+## Troubleshooting
+
+- `404 /openapi/relationships/v1`: older DataHub version; app falls back to legacy `/relationships`.
+- `400 Parameter 'types' is required`: legacy relationship endpoint; app includes fallback `types`.
+- `400 invalid SystemMetadata`: app first requests entities with `withSystemMetadata=false`.
+- Empty results: verify URN exists and your GMS endpoint/env config is correct.
+
+## Team Onboarding (macOS)
+
+Copy/paste setup for first day:
 
 ```bash
-npm run build
+# 1) Clone
+git clone https://github.com/nate-in-hutch/datahub-browser.git
+cd datahub-browser
+
+# 2) Install dependencies
+npm install
+
+# 3) Start the app
+npm run dev
 ```
 
-Preview build locally:
+If your local GMS is at `localhost:8080` without `/gms` proxy path:
 
 ```bash
-npm run preview
+VITE_DATAHUB_HOST=localhost VITE_DATAHUB_PORT=8080 VITE_DATAHUB_GMS_API_PATH='' npm run dev
 ```
