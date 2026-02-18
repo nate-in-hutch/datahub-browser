@@ -93,6 +93,23 @@ It relies on network/path access to GMS from the browser (or Vite proxy). If you
 - `npm run dev`: start local dev server
 - `npm run build`: production build
 - `npm run preview`: preview production build
+- `npm run lint`: run ESLint on `src/`
+- `npm run typecheck`: run TypeScript checks (`tsc --noEmit`)
+
+## macOS Tooling Notes
+
+If you installed GNU make with Homebrew, it is available as `gmake`.
+To use GNU make as `make`, add this to your shell profile:
+
+```bash
+export PATH="/opt/homebrew/opt/make/libexec/gnubin:$PATH"
+```
+
+Then reload your shell:
+
+```bash
+source ~/.zshrc
+```
 
 ## Troubleshooting
 

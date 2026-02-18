@@ -296,7 +296,7 @@ function renderJsonWithUrnLinks(
   currentUrn?: string
 ): React.ReactNode[] {
   const tokenPattern =
-    /("(?:\\u[a-fA-F0-9]{4}|\\[^u]|[^\\"])*"(?:\s*:)?|\btrue\b|\bfalse\b|\bnull\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?|[{}\[\],:])/g;
+    /("(?:\\u[a-fA-F0-9]{4}|\\[^u]|[^\\"])*"(?:\s*:)?|\btrue\b|\bfalse\b|\bnull\b|-?\d+(?:\.\d*)?(?:[eE][+-]?\d+)?|\{|\}|\[|\]|,|:)/g;
   const segments = jsonText.split(tokenPattern);
 
   return segments.map((segment, index) => {
@@ -306,10 +306,10 @@ function renderJsonWithUrnLinks(
 
     const isKey = /^"(?:\\u[a-fA-F0-9]{4}|\\[^u]|[^\\"])*"\s*:$/.test(segment);
     const isString = /^"(?:\\u[a-fA-F0-9]{4}|\\[^u]|[^\\"])*"$/.test(segment);
-    const isNumber = /^-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?$/.test(segment);
+    const isNumber = /^-?\d+(?:\.\d*)?(?:[eE][+-]?\d+)?$/.test(segment);
     const isBoolean = segment === 'true' || segment === 'false';
     const isNull = segment === 'null';
-    const isPunctuation = /^[{}\[\],:]$/.test(segment);
+    const isPunctuation = segment.length === 1 && '{}[],:'.includes(segment);
 
     if (isString) {
       const rawValue = stripQuotedString(segment);
