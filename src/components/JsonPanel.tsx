@@ -1,5 +1,6 @@
 import React from 'react';
-import type { DatahubObject } from '../lib/types';
+import type { DatahubObject, DatahubUiRouteMode } from '../lib/types';
+import { buildDatahubEntityUrlWithMode } from '../lib/urls';
 
 function stripQuotedString(value: string): string {
   if (value.length >= 2 && value.startsWith('"') && value.endsWith('"')) {
@@ -81,11 +82,12 @@ type JsonPanelProps = {
   onUrnNavigate: (urn: string) => void;
   onCopyUrn: (urn: string) => void;
   datahubUiBaseUrl: string;
+  datahubUiRouteMode: DatahubUiRouteMode;
 };
 
-export function JsonPanel({ selectedObject, isLoading, onUrnNavigate, onCopyUrn, datahubUiBaseUrl }: JsonPanelProps) {
+export function JsonPanel({ selectedObject, isLoading, onUrnNavigate, onCopyUrn, datahubUiBaseUrl, datahubUiRouteMode }: JsonPanelProps) {
   const selectedJsonText = selectedObject ? JSON.stringify(selectedObject.raw, null, 2) : '';
-  const openEntityUrl = selectedObject ? `${datahubUiBaseUrl.replace(/\/$/, '')}/entity/${encodeURIComponent(selectedObject.id)}` : '';
+  const openEntityUrl = selectedObject ? buildDatahubEntityUrlWithMode(datahubUiBaseUrl, selectedObject.id, datahubUiRouteMode) : '';
 
   return (
     <aside
@@ -148,4 +150,3 @@ export function JsonPanel({ selectedObject, isLoading, onUrnNavigate, onCopyUrn,
     </aside>
   );
 }
-

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { parseUrnName, parseUrnType } from '../lib/urn';
-import type { DatahubObject } from '../lib/types';
+import type { DatahubObject, DatahubUiRouteMode } from '../lib/types';
+import { buildDatahubEntityUrlWithMode } from '../lib/urls';
 
 type StructureSection = {
   title: string;
@@ -13,6 +14,7 @@ type StructurePanelProps = {
   onNavigate: (urn: string) => void;
   onCopyUrn: (urn: string) => void;
   datahubUiBaseUrl: string;
+  datahubUiRouteMode: DatahubUiRouteMode;
 };
 
 function SectionList({
@@ -20,13 +22,15 @@ function SectionList({
   entitiesByUrn,
   onNavigate,
   onCopyUrn,
-  datahubUiBaseUrl
+  datahubUiBaseUrl,
+  datahubUiRouteMode
 }: {
   items: Array<{ urn: string; aspectLabel?: string }>;
   entitiesByUrn: Record<string, DatahubObject>;
   onNavigate: (urn: string) => void;
   onCopyUrn: (urn: string) => void;
   datahubUiBaseUrl: string;
+  datahubUiRouteMode: DatahubUiRouteMode;
 }) {
   const [pageSize, setPageSize] = useState(100);
   const visibleItems = items.slice(0, pageSize);
@@ -43,7 +47,7 @@ function SectionList({
         <div>
           {visibleItems.map((item, index) => {
             const entity = entitiesByUrn[item.urn];
-            const openEntityUrl = `${datahubUiBaseUrl.replace(/\/$/, '')}/entity/${encodeURIComponent(item.urn)}`;
+            const openEntityUrl = buildDatahubEntityUrlWithMode(datahubUiBaseUrl, item.urn, datahubUiRouteMode);
             return (
               <div
                 key={item.urn}
@@ -97,7 +101,7 @@ function SectionList({
   );
 }
 
-export function StructurePanel({ sections, entitiesByUrn, onNavigate, onCopyUrn, datahubUiBaseUrl }: StructurePanelProps) {
+export function StructurePanel({ sections, entitiesByUrn, onNavigate, onCopyUrn, datahubUiBaseUrl, datahubUiRouteMode }: StructurePanelProps) {
   if (sections.length === 0) {
     return <p style={{ margin: 0, color: '#526581', fontSize: '0.9rem' }}>No matching relationships for this filter.</p>;
   }
@@ -113,6 +117,7 @@ export function StructurePanel({ sections, entitiesByUrn, onNavigate, onCopyUrn,
             onNavigate={onNavigate}
             onCopyUrn={onCopyUrn}
             datahubUiBaseUrl={datahubUiBaseUrl}
+            datahubUiRouteMode={datahubUiRouteMode}
           />
         </div>
       ))}

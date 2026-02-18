@@ -40,13 +40,15 @@ Environment variables:
 - `VITE_DATAHUB_PORT`
 - `VITE_DATAHUB_GMS_API_PATH`
 - `VITE_DATAHUB_UI_BASE_URL`
+- `VITE_DATAHUB_UI_ROUTE_MODE` (`type`, `entity`, or `search`)
 - `VITE_DATAHUB_TOKEN` (optional bearer token)
 
 Defaults:
 - `host`: current browser host
 - `port`: current browser port
 - `gms api path`: `/gms`
-- `ui base`: current browser origin
+- `ui base`: `http(s)://<current-host>:9002` (auto-normalized; trailing `/gms` is removed)
+- `ui route mode`: `type` (builds links like `/dataset/<urn>`)
 
 ### Typical local DataHub setup
 
@@ -60,6 +62,12 @@ Direct to local GMS without proxy path:
 
 ```bash
 VITE_DATAHUB_HOST=localhost VITE_DATAHUB_PORT=8080 VITE_DATAHUB_GMS_API_PATH='' npm run dev
+```
+
+If your DataHub UI routes by entity type (common in some deployments), use:
+
+```bash
+VITE_DATAHUB_UI_ROUTE_MODE=type npm run dev
 ```
 
 ## How To Use

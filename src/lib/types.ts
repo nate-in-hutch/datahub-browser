@@ -36,4 +36,4 @@ export type GraphLane = {
 
 export type NavigationMode = 'connect' | 'node' | 'breadcrumb';
 export type ViewMode = 'graph' | 'structure';
-
+export type DatahubUiRouteMode = 'type' | 'entity' | 'search';

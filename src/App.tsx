@@ -5,15 +5,20 @@ import { StructurePanel } from './components/StructurePanel';
 import { fetchEntity, fetchRelationships, DatahubApiError } from './lib/datahubClient';
 import { getNextNavigationStack } from './lib/navigation';
 import { extractAspectUrnGroups, extractUrnsFromJson, parseUrnName, parseUrnType } from './lib/urn';
-import type { DatahubObject, GraphLane, NavigationMode, Neighborhood, PositionedNode, RelationshipEdge, ViewMode } from './lib/types';
+import { normalizeDatahubUiBaseUrl, normalizeDatahubUiRouteMode } from './lib/urls';
+import type { DatahubObject, DatahubUiRouteMode, GraphLane, NavigationMode, Neighborhood, PositionedNode, RelationshipEdge, ViewMode } from './lib/types';
 
 const DEFAULT_GMS_BASE = '/gms';
 const DEFAULT_DATAHUB_HOST = (import.meta.env.VITE_DATAHUB_HOST as string | undefined) ?? window.location.hostname;
 const DEFAULT_DATAHUB_PORT = (import.meta.env.VITE_DATAHUB_PORT as string | undefined) ?? window.location.port;
 const DEFAULT_GMS_API_PATH = (import.meta.env.VITE_DATAHUB_GMS_API_PATH as string | undefined) ?? DEFAULT_GMS_BASE;
-const DEFAULT_DATAHUB_UI_BASE_URL =
+const DEFAULT_DATAHUB_UI_BASE_URL = normalizeDatahubUiBaseUrl(
   (import.meta.env.VITE_DATAHUB_UI_BASE_URL as string | undefined) ??
-  `${window.location.protocol}//${window.location.hostname}${window.location.port ? `:${window.location.port}` : ''}`;
+    `${window.location.protocol}//${window.location.hostname}:9002`
+);
+const DEFAULT_DATAHUB_UI_ROUTE_MODE = normalizeDatahubUiRouteMode(
+  (import.meta.env.VITE_DATAHUB_UI_ROUTE_MODE as string | undefined) ?? 'type'
+);
 const DEFAULT_DATAHUB_TOKEN = (import.meta.env.VITE_DATAHUB_TOKEN as string | undefined) ?? '';
 
 function buildGmsBaseUrl(host: string, port: string, gmsApiPath: string): string {
@@ -30,6 +35,7 @@ export default function App() {
   const [datahubPort] = useState<string>(DEFAULT_DATAHUB_PORT);
   const [gmsApiPath] = useState<string>(DEFAULT_GMS_API_PATH);
   const [datahubUiBaseUrl, setDatahubUiBaseUrl] = useState<string>(DEFAULT_DATAHUB_UI_BASE_URL);
+  const [datahubUiRouteMode, setDatahubUiRouteMode] = useState<DatahubUiRouteMode>(DEFAULT_DATAHUB_UI_ROUTE_MODE);
   const [token, setToken] = useState<string>(DEFAULT_DATAHUB_TOKEN);
   const [urnInput, setUrnInput] = useState<string>('');
   const [centerId, setCenterId] = useState<string | null>(null);
@@ -389,6 +395,7 @@ export default function App() {
           void copyUrn(urn);
         }}
         datahubUiBaseUrl={datahubUiBaseUrl}
+        datahubUiRouteMode={datahubUiRouteMode}
       />
 
       <section
@@ -521,6 +528,24 @@ export default function App() {
                   fontSize: '0.82rem'
                 }}
               />
+              <label style={{ display: 'grid', gap: '0.25rem', width: 'min(420px, 100%)', color: '#334155', fontSize: '0.78rem' }}>
+                DataHub UI route mode
+                <select
+                  value={datahubUiRouteMode}
+                  onChange={(event) => setDatahubUiRouteMode(normalizeDatahubUiRouteMode(event.target.value))}
+                  style={{
+                    border: '1px solid #c7d2e8',
+                    borderRadius: '8px',
+                    padding: '0.45rem 0.6rem',
+                    fontSize: '0.82rem',
+                    background: '#ffffff'
+                  }}
+                >
+                  <option value="type">type (e.g. /dataset/&lt;urn&gt;)</option>
+                  <option value="entity">entity (e.g. /entity/&lt;urn&gt;)</option>
+                  <option value="search">search (e.g. /search?query=&lt;urn&gt;)</option>
+                </select>
+              </label>
             </div>
           )}
           {viewMode === 'structure' && (
@@ -596,6 +621,7 @@ export default function App() {
                 void copyUrn(urn);
               }}
               datahubUiBaseUrl={datahubUiBaseUrl}
+              datahubUiRouteMode={datahubUiRouteMode}
             />
           </div>
         ) : (
