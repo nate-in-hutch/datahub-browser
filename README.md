@@ -39,11 +39,14 @@ Environment variables:
 - `VITE_DATAHUB_HOST`
 - `VITE_DATAHUB_PORT`
 - `VITE_DATAHUB_GMS_API_PATH`
+- `VITE_DATAHUB_UI_BASE_URL`
+- `VITE_DATAHUB_TOKEN` (optional bearer token)
 
 Defaults:
 - `host`: current browser host
 - `port`: current browser port
 - `gms api path`: `/gms`
+- `ui base`: current browser origin
 
 ### Typical local DataHub setup
 
@@ -65,10 +68,13 @@ VITE_DATAHUB_HOST=localhost VITE_DATAHUB_PORT=8080 VITE_DATAHUB_GMS_API_PATH='' 
 2. Use `Structure` view for scale:
    - grouped sections (`Previous`, `Parents`, and aspect groups)
    - filter box for urn/type/name/aspect
+   - virtualized rows for large lists
+   - `Load more` pagination per section
    - click any item to navigate
 3. Use `Graph` view for visual context on smaller neighborhoods.
 4. Click breadcrumbs to jump back to prior nodes.
 5. Click URNs in the JSON panel to navigate to referenced entities.
+6. Use `Copy URN` and `Open in DataHub` actions from JSON/Structure views.
 
 ## API Behavior
 
@@ -84,9 +90,11 @@ Relationship fetch attempts:
 
 ## Auth Notes
 
-This app does not hardcode tokens.
+This app does not hardcode tokens. You can provide an optional bearer token via:
+- `VITE_DATAHUB_TOKEN`
+- or the `Auth` toggle in the app header
 
-It relies on network/path access to GMS from the browser (or Vite proxy). If your GMS requires auth headers, add auth at your proxy/gateway layer or extend the app fetch logic.
+When provided, requests include `Authorization: Bearer <token>`.
 
 ## Scripts
 
@@ -95,6 +103,26 @@ It relies on network/path access to GMS from the browser (or Vite proxy). If you
 - `npm run preview`: preview production build
 - `npm run lint`: run ESLint on `src/`
 - `npm run typecheck`: run TypeScript checks (`tsc --noEmit`)
+- `npm run test`: run unit tests (Vitest)
+
+## CI
+
+GitHub Actions workflow: `.github/workflows/ci.yml`
+
+Checks on push/PR:
+- lint
+- typecheck
+- test
+- build
+
+## Docker
+
+Build and run with Docker:
+
+```bash
+docker build -t datahub-browser .
+docker run --rm -p 4173:4173 datahub-browser
+```
 
 ## macOS Tooling Notes
 
